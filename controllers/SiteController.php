@@ -7,7 +7,7 @@ use yii\filters\AccessControl;
 use yii\web\Controller;
 use yii\filters\VerbFilter;
 use app\models\LoginForm;
-use app\models\ContactForm;
+use app\models\ProfileForm;
 use app\models\RegistrationForm;
 
 class SiteController extends Controller
@@ -24,6 +24,11 @@ class SiteController extends Controller
                         'allow' => true,
                         'roles' => ['@'],
                     ],
+	                [
+		                'actions' => ['profile'],
+		                'allow' => true,
+		                'roles' => ['@'],
+	                ],
                 ],
             ],
             'verbs' => [
@@ -90,6 +95,23 @@ class SiteController extends Controller
 
 		} else {
 			return $this->render('registration', [
+				'model' => $model,
+			]);
+		}
+	}
+
+	public function actionProfile()
+	{
+
+		$model = new ProfileForm();
+
+		if ($model->load(Yii::$app->request->post()) && $model->update()) {
+			Yii::$app->session->setFlash('profileFormSubmitted');
+			return $this->refresh();
+
+		} else {
+			$model->status = Yii::$app->user->identity->status;
+			return $this->render('profile', [
 				'model' => $model,
 			]);
 		}

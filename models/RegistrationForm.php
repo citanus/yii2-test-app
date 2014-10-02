@@ -45,6 +45,7 @@ class RegistrationForm extends Model
 	        $user->email = $this->email;
 	        $user->generateAuthKey(); // @todo should be moved to some onSave event...
 	        $user->setPassword($this->password);
+	        $user->status = 'just registered';
             return $user->save();;
         } else {
             return false;
