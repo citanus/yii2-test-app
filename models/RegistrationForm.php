@@ -34,16 +34,6 @@ class RegistrationForm extends Model
     }
 
     /**
-     * @return array customized attribute labels
-     */
-    public function attributeLabels()
-    {
-        return [
-            'verifyCode' => 'Verification Code',
-        ];
-    }
-
-    /**
      * Create new record in db for user by values provided with this model.
      * @return boolean whether the model passes validation
      */
