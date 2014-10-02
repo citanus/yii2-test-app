@@ -36,13 +36,15 @@ AppAsset::register($this);
                 'options' => ['class' => 'navbar-nav navbar-right'],
                 'items' => [
                     ['label' => 'Home', 'url' => ['/site/index']],
-                    ['label' => 'About', 'url' => ['/site/about']],
-                    ['label' => 'Contact', 'url' => ['/site/contact']],
+	                Yii::$app->user->isGuest ?
+		                ['label' => 'Registration', 'url' => ['/site/registration']]:
+		                ['label' => 'My Profile', 'url' => ['/site/profile']],
                     Yii::$app->user->isGuest ?
-                        ['label' => 'Login', 'url' => ['/site/login']] :
-                        ['label' => 'Logout (' . Yii::$app->user->identity->username . ')',
+                        ['label' => 'Login', 'url' => ['/site/login']]:
+                        ['label' => 'Logout (' . Yii::$app->user->identity->name . ')',
                             'url' => ['/site/logout'],
                             'linkOptions' => ['data-method' => 'post']],
+
                 ],
             ]);
             NavBar::end();
