@@ -8,6 +8,7 @@ use yii\web\Controller;
 use yii\filters\VerbFilter;
 use app\models\LoginForm;
 use app\models\ContactForm;
+use app\models\RegistrationForm;
 
 class SiteController extends Controller
 {
@@ -74,6 +75,25 @@ class SiteController extends Controller
 
         return $this->goHome();
     }
+
+	public function actionRegistration()
+	{
+		$model = new RegistrationForm();
+
+		if (Yii::$app->request->isAjax && $model->load(Yii::$app->request->post())) {
+			Yii::$app->response->format = Response::FORMAT_JSON;
+			return ActiveForm::validate($model);
+
+		} elseif ($model->load(Yii::$app->request->post()) && $model->register()) {
+			Yii::$app->session->setFlash('registrationFormSubmitted');
+			return $this->refresh();
+
+		} else {
+			return $this->render('registration', [
+				'model' => $model,
+			]);
+		}
+	}
 
     public function actionContact()
     {

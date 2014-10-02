@@ -12,6 +12,7 @@ $this->params['breadcrumbs'][] = $this->title;
 <div class="site-login">
     <h1><?= Html::encode($this->title) ?></h1>
 
+	<p>If you are not registered you can signup here: <?= Html::a('registration', ['registration'])?></p>
     <p>Please fill out the following fields to login:</p>
 
     <?php $form = ActiveForm::begin([
