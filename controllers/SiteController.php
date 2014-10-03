@@ -2,6 +2,7 @@
 
 namespace app\controllers;
 
+use app\models\OnlineStatus;
 use Yii;
 use yii\filters\AccessControl;
 use yii\web\Controller;
@@ -17,18 +18,23 @@ class SiteController extends Controller
         return [
             'access' => [
                 'class' => AccessControl::className(),
-                'only' => ['logout'],
+                'only' => ['registration', 'login', 'logout', 'profile', 'messages', 'overview', 'user-list', 'update-online-status'],
                 'rules' => [
+	                [
+		                'actions' => ['registration', 'login'],
+		                'allow' => true,
+		                'roles' => ['?'],
+	                ],
                     [
-                        'actions' => ['logout'],
+                        'actions' => ['logout', 'profile'],
                         'allow' => true,
                         'roles' => ['@'],
                     ],
 	                [
-		                'actions' => ['profile'],
+		                'actions' => ['messages', 'overview', 'user-list', 'update-online-status'],
 		                'allow' => true,
 		                'roles' => ['@'],
-	                ],
+	                ]
                 ],
             ],
             'verbs' => [
@@ -46,16 +52,16 @@ class SiteController extends Controller
             'error' => [
                 'class' => 'yii\web\ErrorAction',
             ],
-            'captcha' => [
-                'class' => 'yii\captcha\CaptchaAction',
-                'fixedVerifyCode' => YII_ENV_TEST ? 'testme' : null,
-            ],
         ];
     }
 
     public function actionIndex()
     {
-        return $this->render('index');
+	    if (Yii::$app->user->isGuest) {
+	        return $this->render('index');
+	    } else {
+		    return $this->redirect(['site/messenger']);
+	    }
     }
 
     public function actionLogin()
@@ -115,5 +121,27 @@ class SiteController extends Controller
 				'model' => $model,
 			]);
 		}
+	}
+
+	/**
+	 * render messenger layout with all ajax actions
+	 *
+	 * @return string
+	 */
+	public function actionMessenger() {
+		OnlineStatus::updateStatus(Yii::$app->user->identity);
+		return $this->render('messenger');
+	}
+
+	public function actionGetUserList() {
+
+	}
+
+	public function actionUpdateOnlineStatus() {
+		return OnlineStatus::updateStatus(Yii::$app->user->identity);
+	}
+
+	public function actionGetMessages() {
+
 	}
 }

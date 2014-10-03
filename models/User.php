@@ -8,14 +8,6 @@ use yii\db\ActiveRecord;
 
 class User extends ActiveRecord implements \yii\web\IdentityInterface
 {
-  /*  public $id;
-    public $name;
-    public $email;
-    public $password_hash;
-	public $status;
-	public $auth_key;*/
-
-
 	/**
 	 * defining table name to work with
 	 *
@@ -106,12 +98,20 @@ class User extends ActiveRecord implements \yii\web\IdentityInterface
 		return $this->getAuthKey() === $authKey;
 	}
 
-
 	/**
 	 * Generates "remember me" authentication key
 	 */
 	public function generateAuthKey()
 	{
 		$this->auth_key = Yii::$app->security->generateRandomString();
+	}
+
+	/**
+	 * if there is record in foreign online status table return true
+	 *
+	 * @return bool
+	 */
+	public function isOnline() {
+		return OnlineStatus::findOne(['user_id' => $this->getId(), ]) !== null;
 	}
 }
