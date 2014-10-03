@@ -8,7 +8,7 @@ use yii\data\ActiveDataProvider;
 use app\models\User;
 
 /* @var $this yii\web\View */
-$this->title = 'My Yii Application';
+$this->title = 'Messenger';
 
 $userDataProvider = new ActiveDataProvider([
 	'query' => User::find()->where(sprintf('id != %d', Yii::$app->user->identity->getId())),
@@ -30,15 +30,23 @@ $this->registerJs('function updateMessenger() {
 setInterval(updateMessenger,5000);
 ', View::POS_READY);
 
+
+$this->params['breadcrumbs'][] = $this->title;
 ?>
 <div class="site-index">
 
     <div class="body-content">
         <div class="row">
+	        <div class="col-lg-2">
+		        <ul>
+		            <li><?= Html::a('User list', ['all-users-list'])?></li>
+		            <li><?= Html::a('Contact List', ['contact-list'])?></li>
+			    </ul>
+		    </div>
             <div class="col-lg-2">
                 <h2>User list</h2>
 
-	            <?php \yii\widgets\Pjax::begin(); ?>
+	            <?php //\yii\widgets\Pjax::begin(); ?>
 	            <?= GridView::widget([
 		            'dataProvider' => $userDataProvider,
 		            'id' => 'usersList',
@@ -53,7 +61,7 @@ setInterval(updateMessenger,5000);
 				        ],
 		            ],
 	            ]);?>
-	            <?php \yii\widgets\Pjax::end(); ?>
+	            <?php //\yii\widgets\Pjax::end(); ?>
 
 
             </div>
