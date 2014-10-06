@@ -110,7 +110,6 @@ class SiteController extends Controller
 
 	public function actionProfile()
 	{
-
 		$model = new ProfileForm();
 
 		if ($model->load(Yii::$app->request->post()) && $model->update()) {
@@ -126,24 +125,46 @@ class SiteController extends Controller
 	}
 
 	/**
-	 * render messenger layout with all ajax actions
+	 * - display messenger layout with all ajax actions
+	 * - display messages and new message form for current recipient
+	 * - refresh online status if is javascript is not working
+	 *
+	 * @params $id null|int recipent id
+	 * @return string
+	 */
+	public function actionMessenger($recipient = null) {
+		OnlineStatus::updateStatus(Yii::$app->user->identity);
+		$recipient = \app\models\User::findOne($recipient);
+
+		if($recipient !== null) {
+			$messageModel = new \app\models\NewMessageForm();
+			$messageModel->recipient = $recipient->getId();
+			return $this->render('messenger', ['displayChat'=> true,'recipient' => $recipient, 'messageModel'=> $messageModel]);
+		}
+
+		return $this->render('messenger', ['displayChat'=> false, 'recipient' => null]);
+	}
+
+	/**
+	 * update online status for logged user. Periodicaly called via ajax
+	 *
+	 * @return void
+	 */
+	public function actionUpdateOnlineStatus() {
+		OnlineStatus::updateStatus(Yii::$app->user->identity);
+	}
+
+	/**
+	 * display all registered users with action buttons(profile, add to contact list)
 	 *
 	 * @return string
 	 */
-	public function actionMessenger() {
-		OnlineStatus::updateStatus(Yii::$app->user->identity);
-		return $this->render('messenger');
+	public function actionAllUsersList() {
+		return $this->render('all-user-list');
 	}
 
-	public function actionGetUserList() {
-
-	}
-
-	public function actionUpdateOnlineStatus() {
-		return OnlineStatus::updateStatus(Yii::$app->user->identity);
-	}
-
-	public function actionGetMessages() {
+	/**
+	 * add requested contact to contact list and redirect back to actionAllUsersList()
 
 	 * @todo better error handle
 	 * @param $id new contact id
@@ -158,7 +179,22 @@ class SiteController extends Controller
 		$this->redirect(['site/all-users-list']);
 	}
 
-	public function actionAllUsersList() {
-		return $this->render('all-user-list');
+	/**
+	 * check if recipient is in contact list and queue message for him
+	 *
+	 * @todo better error handle
+	 */
+	public function actionSendMessage() {
+		$messageModel = new \app\models\NewMessageForm();
+		if ($messageModel->load(Yii::$app->request->post())) {
+			$recipient = User::findOne($messageModel->recipient);
+			var_dump($messageModel->message);
+			Message::sendMessage(Yii::$app->user->identity, $recipient, $messageModel->message);
+			Yii::$app->session->setFlash('messageSendSuccesfull');
+			$this->redirect(['site/messenger', 'recipient' => $messageModel->recipient]);
+		} else {
+			Yii::$app->session->setFlash('messageSendFailure');
+			$this->redirect(['site/messenger', 'recipient' => $messageModel->recipient]);
+		}
 	}
 }
