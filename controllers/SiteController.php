@@ -2,7 +2,9 @@
 
 namespace app\controllers;
 
+use app\models\Message;
 use app\models\OnlineStatus;
+use app\models\User;
 use Yii;
 use yii\filters\AccessControl;
 use yii\web\Controller;
@@ -18,7 +20,7 @@ class SiteController extends Controller
         return [
             'access' => [
                 'class' => AccessControl::className(),
-                'only' => ['registration', 'login', 'logout', 'profile', 'messages', 'overview', 'all-users-list', 'contact-list', 'update-online-status'],
+                'only' => ['registration', 'login', 'logout', 'profile', 'messages', 'send-message', 'overview', 'all-users-list', 'add-to-contact-list', 'update-online-status'],
                 'rules' => [
 	                [
 		                'actions' => ['registration', 'login'],
@@ -31,7 +33,7 @@ class SiteController extends Controller
                         'roles' => ['@'],
                     ],
 	                [
-		                'actions' => ['messages', 'overview', 'all-users-list', 'contact-list', 'update-online-status'],
+		                'actions' => ['messages', 'overview', 'all-users-list', 'send-message', 'add-to-contact-list', 'update-online-status'],
 		                'allow' => true,
 		                'roles' => ['@'],
 	                ]
@@ -143,6 +145,17 @@ class SiteController extends Controller
 
 	public function actionGetMessages() {
 
+	 * @todo better error handle
+	 * @param $id new contact id
+	 */
+	public function actionAddToContactList($id) {
+		$newContact = \app\models\User::findOne($id);
+		if($newContact !== null && Yii::$app->user->identity->addUserToContactList($newContact)) {
+			Yii::$app->session->setFlash('contactListUpdateSuccessfull');
+		} else {
+			Yii::$app->session->setFlash('contactListUpdateFailure');
+		}
+		$this->redirect(['site/all-users-list']);
 	}
 
 	public function actionAllUsersList() {
