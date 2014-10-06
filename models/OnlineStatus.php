@@ -12,6 +12,16 @@ use yii\base\Exception;
 use yii\base\Model;
 use yii\db\ActiveRecord;
 
+/**
+ * Class OnlineStatus
+ *
+ * If there is record for user_id in online status table, then we can assume user is online
+ *
+ * @todo refactor to use some memory based storage, cause often updates of online status will generate many write
+ * operations
+ *
+ * @package app\models
+ */
 class OnlineStatus extends ActiveRecord {
 
 	/**
@@ -25,7 +35,7 @@ class OnlineStatus extends ActiveRecord {
 	}
 
 	/**
-	 * Update last online datetime for given UserId and clean up zombie status for other users
+	 * Update last online datetime for given UserId and clean up zombie records for other users
 	 *
 	 * @param User $currentUser
 	 * @return bool whether the saving succeeds
@@ -43,5 +53,4 @@ class OnlineStatus extends ActiveRecord {
 		OnlineStatus::deleteAll(sprintf("date_last_online < '%s'", date('Y-m-d H:i:s', time()-60)));
 		return $updateStatus;
 	}
-
 } 
